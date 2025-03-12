@@ -37,3 +37,6 @@ Usuario estándar. Podrán crear, mostrar, editar y borrar sus hábito personale
 -   Recompensas virtuales.
 
 ## -   **Diagrama de Entidad Relación**
+
+![diagrama](https://github.com/user-attachments/assets/35e16ccf-56d2-4068-ab98-0ec5fc600866)
+
