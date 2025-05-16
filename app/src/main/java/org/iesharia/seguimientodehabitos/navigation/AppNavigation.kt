@@ -1,6 +1,8 @@
 package org.iesharia.seguimientodehabitos.navigation
 
+import android.widget.Toast
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.platform.LocalContext
 import org.iesharia.seguimientodehabitos.ui.screen.HomeScreen
 import org.iesharia.seguimientodehabitos.ui.screen.LoginScreen
 import org.iesharia.seguimientodehabitos.ui.screen.RegisterScreen
@@ -8,11 +10,16 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 
 import androidx.navigation.compose.rememberNavController
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import org.iesharia.seguimientodehabitos.data.api.AuthService
 
 @Composable
 fun AppNavigation() {
     val navController = rememberNavController()
-
+    val context = LocalContext.current
     NavHost(
         navController = navController,
         startDestination = Routes.LOGIN
@@ -20,17 +27,20 @@ fun AppNavigation() {
         composable(Routes.LOGIN) {
             LoginScreen(
                 onLoginClick = { email, password ->
-                    if (email == "test@email.com" && password == "1234") {
-                        navController.navigate(Routes.HOME)
-                    } else {
-                        // Aquí podrías mostrar un mensaje de error con un Snackbar
-                        println("Login fallido: datos incorrectos")
+                    CoroutineScope(Dispatchers.IO).launch {
+                        val result = AuthService.login(email, password)
+                        withContext(Dispatchers.Main) {
+                            if (result != null) {
+                                navController.navigate(Routes.HOME)
+                            } else {
+                                Toast.makeText(context, "Email o contraseña incorrectos", Toast.LENGTH_SHORT).show()
+                            }
+                        }
                     }
                 },
                 onRegisterClick = {
                     navController.navigate(Routes.REGISTER)
                 },
-                onGoogleLoginClick = { /* TODO */ }
             )
         }
 
