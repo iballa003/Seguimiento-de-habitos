@@ -1,6 +1,7 @@
 package org.iesharia.seguimientodehabitos.navigation
 
 import android.widget.Toast
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 import org.iesharia.seguimientodehabitos.ui.screen.HomeScreen
@@ -15,6 +16,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.iesharia.seguimientodehabitos.data.api.AuthService
+import org.iesharia.seguimientodehabitos.ui.screen.HabitFormScreen
+import org.iesharia.seguimientodehabitos.ui.screen.HabitListScreen
 
 @Composable
 fun AppNavigation() {
@@ -22,7 +25,7 @@ fun AppNavigation() {
     val context = LocalContext.current
     NavHost(
         navController = navController,
-        startDestination = Routes.LOGIN
+        startDestination = Routes.HABIT_FORM
     ) {
         composable(Routes.LOGIN) {
             LoginScreen(
@@ -58,12 +61,54 @@ fun AppNavigation() {
 
         composable(Routes.HOME) {
             HomeScreen(
-//                onLogout = {
-//                    navController.navigate(Routes.LOGIN) {
-//                        popUpTo(Routes.LOGIN) { inclusive = true }
-//                    }
-//                }
+                userName = "Iballa",
+                habits = listOf("Beber agua", "Estudiar Kotlin"),
+                onGoToHistorial = { navController.navigate(Routes.HISTORY) },
+                onGoToRecompensas = { navController.navigate(Routes.REWARDS) },
+                onGoToConfiguracion = { navController.navigate(Routes.SETTINGS) },
+                onRegistrarProgreso = { navController.navigate(Routes.PROGRESS) }
             )
         }
+        composable(Routes.HABIT_LIST) {
+            HabitListScreen(
+                habits = listOf("Beber agua", "Leer 10 páginas"),
+                onCreateHabit = { navController.navigate(Routes.HABIT_FORM) },
+                onDeleteHabit = { habit ->
+                    println("Eliminar hábito: $habit")
+                },
+                onEditHabit = { habit ->
+                    println("Editar hábito: $habit")
+                }
+            )
+        }
+        composable(Routes.HABIT_FORM) {
+            HabitFormScreen(
+                usuarioId = 1,
+                categorias = listOf(
+                    1 to "Salud", 2 to "Lectura", 3 to "Ejercicio"
+                ),
+                onSave = { habit ->
+                    println("Hábito guardado: $habit")
+                    navController.popBackStack()
+                },
+                onCancel = {
+                    navController.popBackStack()
+                }
+            )
+        }
+
+        composable(Routes.HISTORY) {
+            Text("Pantalla de Historial")
+        }
+        composable(Routes.REWARDS) {
+            Text("Pantalla de Recompensas")
+        }
+        composable(Routes.SETTINGS) {
+            Text("Pantalla de Ajustes")
+        }
+        composable(Routes.PROGRESS) {
+            Text("Pantalla de Registro de Progreso")
+        }
+
     }
 }
