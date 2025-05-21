@@ -25,12 +25,12 @@ fun HabitFormScreen(
     var metaTexto by remember { mutableStateOf("") }
     var estado by remember { mutableStateOf(true) }
 
-    var categoriaSeleccionada by remember { mutableStateOf(categorias.firstOrNull()?.first ?: 1) }
-    val categorias2 = remember { mutableStateOf<List<Categoria>>(emptyList()) }
+    val categoriasList = remember { mutableStateOf<List<Categoria>>(emptyList()) }
+    var categoriaSeleccionada by remember { mutableStateOf(0) }
 
     LaunchedEffect(Unit) {
         try {
-            categorias2.value = CategoriaService.obtenerCategorias()
+            categoriasList.value = CategoriaService.obtenerCategorias()
         } catch (e: Exception) {
             println("Error al cargar categorías: ${e.message}")
         }
@@ -82,11 +82,21 @@ fun HabitFormScreen(
 
         Text("Categoría", style = MaterialTheme.typography.titleSmall)
 
-        DropdownMenuWithLabel(
-            categorias = categorias,
-            selectedId = categoriaSeleccionada,
-            onSelected = { categoriaSeleccionada = it }
-        )
+        if (categoriasList.value.isNotEmpty()) {
+            val categoriasDropdown = categoriasList.value.map { it.id to it.nombre }
+
+            if (categoriasDropdown.none { it.first == categoriaSeleccionada }) {
+                categoriaSeleccionada = categoriasDropdown.first().first
+            }
+
+            DropdownMenuWithLabel(
+                categorias = categoriasDropdown,
+                selectedId = categoriaSeleccionada,
+                onSelected = { categoriaSeleccionada = it }
+            )
+        } else {
+            Text("Cargando categorías...")
+        }
 
         Spacer(modifier = Modifier.height(24.dp))
 
@@ -114,13 +124,6 @@ fun HabitFormScreen(
                 Text("Guardar")
             }
 
-        }
-
-
-        LazyColumn {
-            items(categorias2.value) { cat ->
-                Text("Categoría: ${cat.nombre}")
-            }
         }
     }
 }
