@@ -1,5 +1,6 @@
 package org.iesharia.seguimientodehabitos.data.api
 
+import android.util.Log
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.plugins.contentnegotiation.*
@@ -19,11 +20,14 @@ object AuthService {
 
     suspend fun login(email: String, password: String): LoginResponse? {
         return try {
-            val response = client.post("https://tubackend.com/api/login") {
+
+            val response = client.post("http://10.0.2.2:8080/login") {
                 contentType(ContentType.Application.Json)
                 setBody(LoginRequest(email, password))
             }
+            //Log.i("DAM",response.body())
             response.body()
+
         } catch (e: Exception) {
             println("Error de login: ${e.message}")
             null

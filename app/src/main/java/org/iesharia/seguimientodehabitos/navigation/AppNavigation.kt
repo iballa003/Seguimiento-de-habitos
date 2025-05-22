@@ -1,8 +1,10 @@
 package org.iesharia.seguimientodehabitos.navigation
 
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.platform.LocalContext
 import org.iesharia.seguimientodehabitos.ui.screen.HomeScreen
 import org.iesharia.seguimientodehabitos.ui.screen.LoginScreen
@@ -25,27 +27,36 @@ fun AppNavigation() {
     val context = LocalContext.current
     NavHost(
         navController = navController,
-        startDestination = Routes.HABIT_FORM
+        startDestination = Routes.LOGIN
     ) {
         composable(Routes.LOGIN) {
+            val context = LocalContext.current
+            val coroutineScope = rememberCoroutineScope()
+
             LoginScreen(
                 onLoginClick = { email, password ->
-                    CoroutineScope(Dispatchers.IO).launch {
-                        val result = AuthService.login(email, password)
-                        withContext(Dispatchers.Main) {
-                            if (result != null) {
+                    coroutineScope.launch {
+                        try {
+                            val result = withContext(Dispatchers.IO) {
+                                AuthService.login(email, password)
+                            }
+
+                            if (result != null && result.success) {
                                 navController.navigate(Routes.HOME)
                             } else {
                                 Toast.makeText(context, "Email o contraseña incorrectos", Toast.LENGTH_SHORT).show()
                             }
+                        } catch (e: Exception) {
+                            Toast.makeText(context, "Error de conexión: ${e.message}", Toast.LENGTH_SHORT).show()
                         }
                     }
                 },
                 onRegisterClick = {
                     navController.navigate(Routes.REGISTER)
-                },
+                }
             )
         }
+
 
         composable(Routes.REGISTER) {
             RegisterScreen(

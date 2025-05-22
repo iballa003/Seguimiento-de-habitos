@@ -3,6 +3,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class LoginResponse(
-    val token: String, // o lo que te devuelva tu backend
-    val userId: Int
+    val success: Boolean,
+    val userId: Int? = null,
+    val message: String
 )
