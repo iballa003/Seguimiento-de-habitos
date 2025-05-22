@@ -68,5 +68,7 @@ dependencies {
 
     implementation("androidx.compose.material:material-icons-extended:1.5.4")
 
+    //bcrypt
+    implementation("at.favre.lib:bcrypt:0.10.2")
 
 }
