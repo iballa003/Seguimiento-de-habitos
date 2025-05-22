@@ -60,13 +60,18 @@ fun AppNavigation() {
 
         composable(Routes.REGISTER) {
             RegisterScreen(
-//                onRegisterSuccess = {
-//                    navController.popBackStack()
-//                    navController.navigate(Routes.HOME)
-//                },
-//                onBackClick = {
-//                    navController.popBackStack()
-//                }
+                onRegisterSuccess = {
+                    // Vuelve al login al registrarse correctamente
+                    navController.navigate(Routes.LOGIN) {
+                        popUpTo(Routes.REGISTER) { inclusive = true }
+                    }
+                },
+                onCancel = {
+                    // Vuelve al login si cancela
+                    navController.navigate(Routes.LOGIN) {
+                        popUpTo(Routes.REGISTER) { inclusive = true }
+                    }
+                }
             )
         }
 
