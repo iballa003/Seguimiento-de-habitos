@@ -70,5 +70,8 @@ dependencies {
 
     //bcrypt
     implementation("at.favre.lib:bcrypt:0.10.2")
+    //datastore
+    implementation("androidx.datastore:datastore-preferences:1.0.0")
+
 
 }

@@ -4,6 +4,7 @@ import android.util.Log
 import android.widget.Toast
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.platform.LocalContext
 import org.iesharia.seguimientodehabitos.ui.screen.HomeScreen
@@ -18,8 +19,10 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.iesharia.seguimientodehabitos.data.api.AuthService
+import org.iesharia.seguimientodehabitos.data.session.UserSessionManager
 import org.iesharia.seguimientodehabitos.ui.screen.HabitFormScreen
 import org.iesharia.seguimientodehabitos.ui.screen.HabitListScreen
+import org.iesharia.seguimientodehabitos.ui.screen.SplashScreen
 
 @Composable
 fun AppNavigation() {
@@ -27,10 +30,11 @@ fun AppNavigation() {
     val context = LocalContext.current
     NavHost(
         navController = navController,
-        startDestination = Routes.LOGIN
+        startDestination = Routes.SPLASH
     ) {
         composable(Routes.LOGIN) {
             val context = LocalContext.current
+            val sessionManager = remember { UserSessionManager(context) }
             val coroutineScope = rememberCoroutineScope()
 
             LoginScreen(
@@ -41,7 +45,8 @@ fun AppNavigation() {
                                 AuthService.login(email, password)
                             }
 
-                            if (result != null && result.success) {
+                            if (result != null && result.success && result.userId != null) {
+                                sessionManager.saveUserId(result.userId)
                                 navController.navigate(Routes.HOME)
                             } else {
                                 Toast.makeText(context, "Email o contraseña incorrectos", Toast.LENGTH_SHORT).show()
@@ -56,8 +61,6 @@ fun AppNavigation() {
                 }
             )
         }
-
-
         composable(Routes.REGISTER) {
             RegisterScreen(
                 onRegisterSuccess = {
@@ -73,6 +76,19 @@ fun AppNavigation() {
                     }
                 }
             )
+        }
+        composable(Routes.SPLASH) {
+            SplashScreen { isLoggedIn ->
+                if (isLoggedIn) {
+                    navController.navigate(Routes.HOME) {
+                        popUpTo(Routes.SPLASH) { inclusive = true }
+                    }
+                } else {
+                    navController.navigate(Routes.LOGIN) {
+                        popUpTo(Routes.SPLASH) { inclusive = true }
+                    }
+                }
+            }
         }
 
         composable(Routes.HOME) {
