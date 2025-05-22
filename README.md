@@ -38,4 +38,5 @@ Usuario estándar. Podrán crear, mostrar, editar y borrar sus hábito personale
 
 ## -   **Diagrama de Entidad Relación**
 
-![diagrama](https://github.com/user-attachments/assets/2f6a9a8e-9f9b-4500-8088-dc3a81bc0255)
+![Untitled](https://github.com/user-attachments/assets/535f7959-91ae-4bfa-b20c-a02c9649c799)
+
