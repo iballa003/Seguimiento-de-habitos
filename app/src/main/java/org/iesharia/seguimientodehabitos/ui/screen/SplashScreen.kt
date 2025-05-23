@@ -22,7 +22,7 @@ fun SplashScreen(
     var isLoading by remember { mutableStateOf(true) }
 
     LaunchedEffect(Unit) {
-        delay(1000) // Simula tiempo de carga (puedes quitarlo)
+        delay(1000)
         sessionManager.userIdFlow.collect { userId ->
             onNavigate(userId != null)
         }

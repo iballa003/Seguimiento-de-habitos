@@ -4,7 +4,12 @@ import android.util.Log
 import android.widget.Toast
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.platform.LocalContext
 import org.iesharia.seguimientodehabitos.ui.screen.HomeScreen
@@ -19,6 +24,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.iesharia.seguimientodehabitos.data.api.AuthService
+import org.iesharia.seguimientodehabitos.data.api.HabitoService
+import org.iesharia.seguimientodehabitos.data.model.Habito
 import org.iesharia.seguimientodehabitos.data.session.UserSessionManager
 import org.iesharia.seguimientodehabitos.ui.screen.HabitFormScreen
 import org.iesharia.seguimientodehabitos.ui.screen.HabitListScreen
@@ -28,6 +35,19 @@ import org.iesharia.seguimientodehabitos.ui.screen.SplashScreen
 fun AppNavigation() {
     val navController = rememberNavController()
     val context = LocalContext.current
+    val sessionManager = remember { UserSessionManager(context) }
+    val userId by sessionManager.userIdFlow.collectAsState(initial = null)
+
+    var listaHabitos by remember { mutableStateOf<List<Habito>>(emptyList()) }
+    LaunchedEffect(userId){
+        if (userId != null){
+            try {
+                listaHabitos = HabitoService.obtenerHabitos(userId!!)
+            } catch (e: Exception){
+                println("Error al obtener los hábitos "+e.message)
+            }
+        }
+    }
     NavHost(
         navController = navController,
         startDestination = Routes.SPLASH
@@ -90,20 +110,21 @@ fun AppNavigation() {
                 }
             }
         }
-
         composable(Routes.HOME) {
             HomeScreen(
+                navController = navController,
                 userName = "Iballa",
-                habits = listOf("Beber agua", "Estudiar Kotlin"),
+                habits= listOf("Beber agua", "Estudiar Kotlin"),
                 onGoToHistorial = { navController.navigate(Routes.HISTORY) },
                 onGoToRecompensas = { navController.navigate(Routes.REWARDS) },
                 onGoToConfiguracion = { navController.navigate(Routes.SETTINGS) },
-                onRegistrarProgreso = { navController.navigate(Routes.PROGRESS) }
+                onRegistrarProgreso = { navController.navigate(Routes.PROGRESS) },
+                onGoToLogin = { navController.navigate(Routes.LOGIN) }
             )
         }
         composable(Routes.HABIT_LIST) {
             HabitListScreen(
-                habits = listOf("Beber agua", "Leer 10 páginas"),
+                habits = listaHabitos,
                 onCreateHabit = { navController.navigate(Routes.HABIT_FORM) },
                 onDeleteHabit = { habit ->
                     println("Eliminar hábito: $habit")
@@ -128,7 +149,6 @@ fun AppNavigation() {
                 }
             )
         }
-
         composable(Routes.HISTORY) {
             Text("Pantalla de Historial")
         }

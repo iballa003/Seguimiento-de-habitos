@@ -12,13 +12,14 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.Alignment
+import org.iesharia.seguimientodehabitos.data.model.Habito
 
 @Composable
 fun HabitListScreen(
-    habits: List<String> = listOf("Beber agua", "Leer 10 páginas", "Ejercicio 30 min"),
+    habits: List<Habito>,
     onCreateHabit: () -> Unit,
-    onDeleteHabit: (String) -> Unit,
-    onEditHabit: (String) -> Unit
+    onDeleteHabit: (Habito) -> Unit,
+    onEditHabit: (Habito) -> Unit
 ) {
     Scaffold(
         floatingActionButton = {
@@ -33,9 +34,10 @@ fun HabitListScreen(
                 .padding(padding)
                 .padding(24.dp)
         ) {
-            Text("Mis Hábitos", style = MaterialTheme.typography.headlineMedium)
 
+            Text("Mis Hábitos", style = MaterialTheme.typography.headlineMedium)
             Spacer(modifier = Modifier.height(16.dp))
+
 
             LazyColumn {
                 items(habits) { habit ->
@@ -52,7 +54,10 @@ fun HabitListScreen(
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Text(habit, style = MaterialTheme.typography.bodyLarge)
+                            Column {
+                                Text(habit.nombre, style = MaterialTheme.typography.bodyLarge)
+                                Text("Meta diaria: ${habit.meta_diaria}", style = MaterialTheme.typography.bodySmall)
+                            }
 
                             Row {
                                 IconButton(onClick = { onEditHabit(habit) }) {
@@ -69,3 +74,4 @@ fun HabitListScreen(
         }
     }
 }
+
