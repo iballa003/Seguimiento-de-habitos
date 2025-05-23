@@ -113,13 +113,9 @@ fun AppNavigation() {
         composable(Routes.HOME) {
             HomeScreen(
                 navController = navController,
-                userName = "Iballa",
-                habits= listOf("Beber agua", "Estudiar Kotlin"),
                 onGoToHistorial = { navController.navigate(Routes.HISTORY) },
                 onGoToRecompensas = { navController.navigate(Routes.REWARDS) },
                 onGoToConfiguracion = { navController.navigate(Routes.SETTINGS) },
-                onRegistrarProgreso = { navController.navigate(Routes.PROGRESS) },
-                onGoToLogin = { navController.navigate(Routes.LOGIN) }
             )
         }
         composable(Routes.HABIT_LIST) {

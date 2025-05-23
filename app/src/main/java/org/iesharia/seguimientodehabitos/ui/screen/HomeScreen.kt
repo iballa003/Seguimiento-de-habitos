@@ -18,6 +18,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
+import org.iesharia.seguimientodehabitos.data.model.Habito
 import org.iesharia.seguimientodehabitos.data.session.UserSessionManager
 import org.iesharia.seguimientodehabitos.navigation.Routes
 
@@ -25,17 +26,14 @@ import org.iesharia.seguimientodehabitos.navigation.Routes
 @Composable
 fun HomeScreen(
     navController: NavController,
-    userName: String = "Usuario",
-    habits: List<String> = listOf("Beber agua", "Leer 10 páginas", "Caminar 30 min"),
     onGoToHistorial: () -> Unit,
     onGoToRecompensas: () -> Unit,
     onGoToConfiguracion: () -> Unit,
-    onRegistrarProgreso: () -> Unit,
-    onGoToLogin: () -> Unit
 ) {
     val coroutineScope = rememberCoroutineScope()
     val context = LocalContext.current
     val sessionManager = remember { UserSessionManager(context) }
+    var listaHabitos by remember { mutableStateOf<List<Habito>>(emptyList()) }
     Scaffold(
         topBar = {
             TopAppBar(
@@ -73,14 +71,6 @@ fun HomeScreen(
             Text("Hábitos activos hoy:", style = MaterialTheme.typography.titleMedium)
 
             Spacer(modifier = Modifier.height(8.dp))
-
-            HabitListScreen(
-                habits = listaHabitos,
-                onCreateHabit = { navController.navigate(Routes.HABIT_FORM) },
-                onEditHabit = { /* navegar a editar */ },
-                onDeleteHabit = { /* mostrar confirmación y eliminar */ }
-            )
-
 
             Spacer(modifier = Modifier.height(24.dp))
 
