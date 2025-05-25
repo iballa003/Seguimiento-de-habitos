@@ -14,6 +14,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewmodel.compose.viewModel
+import org.iesharia.seguimientodehabitos.data.viewmodel.HabitosViewModel
 import org.iesharia.seguimientodehabitos.data.viewmodel.ThemeViewModel
 import org.iesharia.seguimientodehabitos.navigation.AppNavigation
 import org.iesharia.seguimientodehabitos.ui.theme.SeguimientoDeHabitosTheme
@@ -23,11 +24,12 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
+            val habitosViewModel: HabitosViewModel = viewModel()
             val themeViewModel: ThemeViewModel = viewModel()
             val isDark by themeViewModel.isDarkMode.collectAsState()
 
             SeguimientoDeHabitosTheme(darkTheme = isDark) {
-                AppNavigation(themeViewModel)
+                AppNavigation(themeViewModel, habitosViewModel)
             }
         }
     }

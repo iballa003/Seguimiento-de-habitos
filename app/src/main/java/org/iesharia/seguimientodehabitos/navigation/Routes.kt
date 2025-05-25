@@ -14,5 +14,5 @@ object Routes {
     const val HABIT_FORM = "habit_form"
     const val EDIT_HABIT = "editHabit"
     const val SPLASH = "splash"
-
+    fun editarHabitoConId(id: Int) = "editarHabito/$id"
 }

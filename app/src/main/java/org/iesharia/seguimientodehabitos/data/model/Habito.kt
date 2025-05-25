@@ -11,7 +11,9 @@ data class Habito(
     @SerialName("meta_diaria")
     val metaDiaria: Int,
     val estado: Boolean,
-    val categoriaId: Int
+    val categoriaId: Int,
+    @SerialName("usuario_id")
+    val usuarioId: Int
 )
 
 

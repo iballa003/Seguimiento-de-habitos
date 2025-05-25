@@ -17,11 +17,27 @@ object HabitoService {
         }
     }
 
-    suspend fun obtenerHabitos(usuarioId: Int): List<Habito> {
+    suspend fun getHabitos(usuarioId: Int): List<Habito> {
         val response: HttpResponse = client.get("http://10.0.2.2:8080/habitos") {
             parameter("usuarioId", usuarioId)
             accept(ContentType.Application.Json)
         }
         return response.body()
+    }
+    suspend fun createHabito(habito: Habito) {
+        client.post("http://10.0.2.2:8080/habitos") {
+            contentType(ContentType.Application.Json)
+            setBody(habito)
+        }
+    }
+    suspend fun updateHabito(habito: Habito) {
+        client.put("http://10.0.2.2:8080/habitos/${habito.id}") {
+            contentType(ContentType.Application.Json)
+            setBody(habito)
+        }
+    }
+
+    suspend fun deleteHabito(id: Int) {
+        client.delete("http://10.0.2.2:8080/habitos/$id")
     }
 }
