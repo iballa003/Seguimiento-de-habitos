@@ -27,12 +27,17 @@ import org.iesharia.seguimientodehabitos.data.api.AuthService
 import org.iesharia.seguimientodehabitos.data.api.HabitoService
 import org.iesharia.seguimientodehabitos.data.model.Habito
 import org.iesharia.seguimientodehabitos.data.session.UserSessionManager
+import org.iesharia.seguimientodehabitos.data.viewmodel.ThemeViewModel
+import org.iesharia.seguimientodehabitos.ui.screen.EditHabitScreen
 import org.iesharia.seguimientodehabitos.ui.screen.HabitFormScreen
 import org.iesharia.seguimientodehabitos.ui.screen.HabitListScreen
+import org.iesharia.seguimientodehabitos.ui.screen.HomeScreen2
+import org.iesharia.seguimientodehabitos.ui.screen.LogbookScreen
+import org.iesharia.seguimientodehabitos.ui.screen.SettingsScreen
 import org.iesharia.seguimientodehabitos.ui.screen.SplashScreen
 
 @Composable
-fun AppNavigation() {
+fun AppNavigation(themeViewModel: ThemeViewModel) {
     val navController = rememberNavController()
     val context = LocalContext.current
     val sessionManager = remember { UserSessionManager(context) }
@@ -50,7 +55,7 @@ fun AppNavigation() {
     }
     NavHost(
         navController = navController,
-        startDestination = Routes.SPLASH
+        startDestination = Routes.HOME2
     ) {
         composable(Routes.LOGIN) {
             val context = LocalContext.current
@@ -116,6 +121,20 @@ fun AppNavigation() {
                 onGoToHistorial = { navController.navigate(Routes.HISTORY) },
                 onGoToRecompensas = { navController.navigate(Routes.REWARDS) },
                 onGoToConfiguracion = { navController.navigate(Routes.SETTINGS) },
+                onRegistrarProgreso = { navController.navigate(Routes.REGISTER) },
+                )
+        }
+        composable(Routes.HOME2) {
+            HomeScreen2(
+                onAddHabit = {},
+                onOpenSettings = {navController.navigate(Routes.SETTINGS)},
+                onOpenLogbook = {navController.navigate(Routes.LOGBOOK)},
+                onEditar = {navController.navigate(Routes.EDIT_HABIT)}
+            )
+        }
+        composable(Routes.LOGBOOK) {
+            LogbookScreen(
+            onBack = {navController.popBackStack()}
             )
         }
         composable(Routes.HABIT_LIST) {
@@ -130,6 +149,18 @@ fun AppNavigation() {
                 }
             )
         }
+        composable(Routes.EDIT_HABIT) {
+            EditHabitScreen(
+                onSave = { name, description, meta ->
+                    // Guardar en base de datos o ViewModel
+                    navController.popBackStack()
+                },
+                onCancel = {
+                    navController.popBackStack()
+                }
+            )
+        }
+
         composable(Routes.HABIT_FORM) {
             HabitFormScreen(
                 usuarioId = 1,
@@ -152,7 +183,12 @@ fun AppNavigation() {
             Text("Pantalla de Recompensas")
         }
         composable(Routes.SETTINGS) {
-            Text("Pantalla de Ajustes")
+            val isDark by themeViewModel.isDarkMode.collectAsState()
+            SettingsScreen(
+                isDark2 = isDark,
+                onToggleDarkMode = themeViewModel::toggleDarkMode,
+                onNavigateBack = { navController.popBackStack() }
+            )
         }
         composable(Routes.PROGRESS) {
             Text("Pantalla de Registro de Progreso")

@@ -1,5 +1,6 @@
 package org.iesharia.seguimientodehabitos.ui.screen
 
+import android.util.Log
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -18,59 +19,79 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
+import org.iesharia.seguimientodehabitos.data.api.HabitoService
 import org.iesharia.seguimientodehabitos.data.model.Habito
 import org.iesharia.seguimientodehabitos.data.session.UserSessionManager
 import org.iesharia.seguimientodehabitos.navigation.Routes
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
     navController: NavController,
     onGoToHistorial: () -> Unit,
     onGoToRecompensas: () -> Unit,
     onGoToConfiguracion: () -> Unit,
+    onRegistrarProgreso: () -> Unit
 ) {
-    val coroutineScope = rememberCoroutineScope()
     val context = LocalContext.current
-    val sessionManager = remember { UserSessionManager(context) }
     var listaHabitos by remember { mutableStateOf<List<Habito>>(emptyList()) }
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("Inicio") },
-                actions = {
-                    IconButton(onClick = {
-                        coroutineScope.launch {
-                            sessionManager.clearSession()
-                            navController.navigate(Routes.LOGIN) {
-                                popUpTo(Routes.HOME) { inclusive = true }
-                            }
-                        }
-                    }) {
-                        Icon(Icons.Default.ExitToApp, contentDescription = "Cerrar sesión")
-                    }
-                }
-            )
-        },
-        floatingActionButton = {
-            FloatingActionButton(onClick = {
-                //navController.navigate(Routes.CREATE_HABIT)
-            }) {
-                Icon(Icons.Default.Add, contentDescription = "Crear hábito")
+    val sessionManager = remember { UserSessionManager(context) }
+    val userId by sessionManager.userIdFlow.collectAsState(initial = null)
+    val currentUserId = userId
+    LaunchedEffect(currentUserId) {
+        Log.i("Dam2User", userId.toString())
+        if (currentUserId != null) {
+            try {
+                listaHabitos = HabitoService.obtenerHabitos(currentUserId)
+                Log.i("Dam2","✅ Hábitos recibidos: $listaHabitos") // <--- Asegura que llegaron
+
+            } catch (e: Exception) {
+                println("Error al cargar hábitos: ${e.message}")
             }
         }
-    )
-    { padding ->
+    }
+    val habits : List<String> = listOf("x", "y", "z")
+    Scaffold(
+        floatingActionButton = {
+            FloatingActionButton(onClick = onRegistrarProgreso) {
+                Icon(Icons.Default.Add, contentDescription = "Registrar progreso")
+            }
+        }
+    ) { padding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
                 .padding(24.dp)
         ) {
+//            Text(
+//                text = "Hola, $userName 👋",
+//                style = MaterialTheme.typography.headlineMedium
+//            )
+
             Spacer(modifier = Modifier.height(16.dp))
+
             Text("Hábitos activos hoy:", style = MaterialTheme.typography.titleMedium)
 
             Spacer(modifier = Modifier.height(8.dp))
+            if (listaHabitos.isEmpty()) {
+                Text("No hay hábitos aún", style = MaterialTheme.typography.bodyMedium)
+            }else{}
+            LazyColumn {
+                items(listaHabitos) { habit ->
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 4.dp),
+                        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+                    ) {
+                        Text(
+                            text = habit.nombre,
+                            modifier = Modifier.padding(16.dp),
+                            style = MaterialTheme.typography.bodyLarge
+                        )
+                    }
+                }
+            }
 
             Spacer(modifier = Modifier.height(24.dp))
 

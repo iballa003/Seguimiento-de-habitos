@@ -56,7 +56,7 @@ fun HabitListScreen(
                         ) {
                             Column {
                                 Text(habit.nombre, style = MaterialTheme.typography.bodyLarge)
-                                Text("Meta diaria: ${habit.meta_diaria}", style = MaterialTheme.typography.bodySmall)
+                                Text("Meta diaria: ${habit.metaDiaria}", style = MaterialTheme.typography.bodySmall)
                             }
 
                             Row {
