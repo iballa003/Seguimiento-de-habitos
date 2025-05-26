@@ -15,7 +15,7 @@ class ReminderWorker(
 
     override suspend fun doWork(): Result {
         println("ReminderWorker ejecutado")
-        showNotification("Recordatorio de hábitos", "No olvides registrar tus hábitos hoy")
+        showNotification("HabitFlow", "No olvides registrar tus hábitos hoy")
         return Result.success()
     }
 

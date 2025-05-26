@@ -24,4 +24,7 @@ object ReminderService {
 
         WorkManager.getInstance(context).enqueue(workRequest)
     }
+    fun cancelarRecordatorio(context: Context) {
+        WorkManager.getInstance(context).cancelUniqueWork("habit_daily_reminder")
+    }
 }
