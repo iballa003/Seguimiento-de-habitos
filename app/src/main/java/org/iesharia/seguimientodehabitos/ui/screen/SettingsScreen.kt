@@ -72,11 +72,6 @@ fun SettingsScreen(
                         Icon(Icons.Default.ArrowBack, contentDescription = "Atrás")
                     }
                 },
-                actions = {
-                    IconButton(onClick = onNavigateToAbout) {
-                        Icon(Icons.Default.Info, contentDescription = "Acerca de")
-                    }
-                }
             )
         }
     ) { padding ->

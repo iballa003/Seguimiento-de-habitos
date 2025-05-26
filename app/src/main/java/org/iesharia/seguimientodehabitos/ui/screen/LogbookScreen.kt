@@ -27,12 +27,15 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import org.iesharia.seguimientodehabitos.data.api.RegistroService
+import org.iesharia.seguimientodehabitos.data.model.RegistroDTO
 import org.iesharia.seguimientodehabitos.ui.components.DatePickerSection
 import java.time.LocalDate
 
@@ -44,13 +47,14 @@ fun LogbookScreen(
     onBack: () -> Unit = {}
 ) {
     var selectedDate by remember { mutableStateOf(LocalDate.now()) }
-    val habitsThatDay = remember(selectedDate) {
-        listOf(
-        "Leer 30 min",
-        "Hacer ejercicio",
-        "Meditar",
-        "Beber 2L de agua")
-    } // Puedes conectar esto después a la base de datos
+    val registros by produceState<List<RegistroDTO>>(initialValue = emptyList(), selectedDate) {
+        value = try {
+            RegistroService.obtenerRegistrosPorFecha(selectedDate.toString())
+        } catch (e: Exception) {
+            println("Error cargando registros: ${e.message}")
+            emptyList()
+        }
+    }
 
     Scaffold(
         topBar = {
@@ -95,12 +99,12 @@ fun LogbookScreen(
             LazyColumn(
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                items(habitsThatDay) { habit ->
+                items(registros) { registro  ->
                     Card(
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         Text(
-                            text = habit,
+                            text = registro.habito,
                             modifier = Modifier.padding(16.dp),
                             style = MaterialTheme.typography.bodyLarge,
                             fontSize = 20.sp

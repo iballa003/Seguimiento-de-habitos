@@ -51,7 +51,7 @@ fun AppNavigation(themeViewModel: ThemeViewModel, habitosViewModel: HabitosViewM
     val userId by sessionManager.userIdFlow.collectAsState(initial = null)
     NavHost(
         navController = navController,
-        startDestination = Routes.HOME
+        startDestination = Routes.SPLASH
     ) {
         composable(Routes.LOGIN) {
             val context = LocalContext.current
@@ -127,7 +127,8 @@ fun AppNavigation(themeViewModel: ThemeViewModel, habitosViewModel: HabitosViewM
             )
         }
         composable("editarHabito/{id}") { backStackEntry ->
-            val habitoId = backStackEntry.arguments?.getString("id")?.toInt() ?: return@composable
+            val habitoId = backStackEntry.arguments?.getString("id")?.toIntOrNull()
+            if (habitoId == null) return@composable
             val habito = habitosViewModel.habitos.value.find { it.id == habitoId }
             val scope = rememberCoroutineScope()
             if (habito == null) {

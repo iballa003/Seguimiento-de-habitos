@@ -1,6 +1,7 @@
 package org.iesharia.seguimientodehabitos.ui.screen
 
 
+import android.widget.Toast
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -36,17 +37,25 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.launch
+import org.iesharia.seguimientodehabitos.data.api.RecompensaService
+import org.iesharia.seguimientodehabitos.data.api.RegistroService
+import org.iesharia.seguimientodehabitos.data.session.UserSessionManager
 import org.iesharia.seguimientodehabitos.data.viewmodel.HabitosViewModel
 import org.iesharia.seguimientodehabitos.navigation.Routes
 
@@ -62,6 +71,16 @@ fun HomeScreen(
 ) {
     val habitos by viewModel.habitos.collectAsState()
     val loading by viewModel.loading.collectAsState()
+    val puntos = remember { mutableStateOf(0) }
+    val scope = rememberCoroutineScope()
+    val context = LocalContext.current
+
+    LaunchedEffect(Unit) {
+        val userId = UserSessionManager(context).userIdFlow.firstOrNull()
+        if (userId != null) {
+            puntos.value = RecompensaService.obtenerPuntos(userId)
+        }
+    }
     Scaffold(
         topBar = {
             TopAppBar(
@@ -106,23 +125,68 @@ fun HomeScreen(
                 }
             }
             else -> {
-                LazyColumn(
+                Column(
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(padding)
-                        .padding(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                        .padding(16.dp)
                 ) {
-                    items(habitos) { habito ->
-                        HabitCard(
-                            title = habito.nombre,
-                            description = habito.descripcion,
-                            meta = "Meta: ${habito.metaDiaria} min",
-                            onEditar = {navController.navigate(Routes.editarHabitoConId(habito.id))}
+                    // Tarjeta de recompensas
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = 12.dp),
+                        colors = CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.tertiaryContainer
                         )
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Text("Recompensas", style = MaterialTheme.typography.titleMedium)
+                            Text("${puntos.value} pts", style = MaterialTheme.typography.headlineSmall)
+                        }
+                    }
+
+                    // Lista de hábitos
+                    LazyColumn(
+                        modifier = Modifier.fillMaxSize(),
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        items(habitos) { habito ->
+                            HabitCard(
+                                title = habito.nombre,
+                                description = habito.descripcion,
+                                meta = "Meta: ${habito.metaDiaria} min",
+                                onEditar = { navController.navigate(Routes.editarHabitoConId(habito.id)) },
+                                onMarcarCompletado = {
+                                    scope.launch {
+                                        try {
+                                            RegistroService.marcarCompletado(
+                                                habitoId = habito.id,
+                                                cantidad = habito.metaDiaria
+                                            )
+                                            val userId = UserSessionManager(context).userIdFlow.firstOrNull()
+                                            if (userId != null) {
+                                                RecompensaService.sumarPuntos(userId, habito.metaDiaria)
+                                                puntos.value = RecompensaService.obtenerPuntos(userId)
+                                            }
+                                            Toast.makeText(context, "Hábito registrado", Toast.LENGTH_SHORT).show()
+                                        } catch (e: Exception) {
+                                            Toast.makeText(context, "Error al registrar hábito", Toast.LENGTH_SHORT).show()
+                                        }
+                                    }
+                                }
+                            )
+                        }
                     }
                 }
             }
+
         }
 
     }
